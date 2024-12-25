@@ -1,14 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import NaxaLMSError from "../utils/error"; // Assuming NaxaLMSError is a custom error class
 
-export const errorMiddleware = (
+const errorMiddleware = (
   err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  err.message = err.message || "Internal Server Error !!!";
+  err.message = err.message + "Added Here" || "Internal Server Error !!!";
   err.statusCode = err.statusCode || 500;
+
+  console.log("I am The Middle Ware");
 
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue)[0]; // Extract the field that caused the duplication
@@ -46,3 +48,5 @@ export const errorMiddleware = (
     stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });
 };
+
+export default errorMiddleware;

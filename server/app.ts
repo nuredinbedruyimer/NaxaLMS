@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import cors from "cors";
+import asyncErrorCatcher from "./middlewares/asyncErrorMiddleware";
+import NaxaLMSError from "./utils/error";
 
 const app = express();
 app.use(
@@ -29,6 +31,13 @@ app.get("/api-test", (req: Request, res: Response) => {
   });
 });
 //  Not Found Route
+
+app.get(
+  "/error-test",
+  asyncErrorCatcher((req: Request, res: Response, next: NextFunction) => {
+    throw new NaxaLMSError("Error Come From Async Error Handler", 500);
+  })
+);
 
 app.all("*", (req: Request, res: Response, next: NextFunction) => {
   let err = new Error(`${req.originalUrl} Not Found`) as any;
