@@ -2,10 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import {
   ActivationResponse,
   JWTSecret,
-  User,
   UserRegistrationRequest,
 } from "../types/interfaces";
 import NaxaLMSError from "../utils/error";
+import User from "../models/userModel";
+import { generateActivationToken } from "../utils/utils";
 
 export const registerUser = async (
   req: Request,
@@ -15,16 +16,22 @@ export const registerUser = async (
   try {
     const { email, name, password, avatar }: UserRegistrationRequest = req.body;
 
-    const user: User = { email, name, password, avatar };
+    const user: UserRegistrationRequest = { email, name, password, avatar };
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      next(new NaxaLMSError("User Already Exist ", 400));
+    }
 
-    const secretKey = process.env.JWT_SECRET_KEY || "your-secret-key";
+    const secretKey = process.env.JWT_SECRET_KEY || "MySecretKey";
 
     const { activationCode, token }: ActivationResponse =
       generateActivationToken(user, secretKey);
-
-    res
-      .status(200)
-      .json({ message: "Registration successful", activationCode, token });
+    const data = {
+      user: {
+        name: user.name,
+      },
+      activationCode,
+    };
   } catch (error) {
     next(new NaxaLMSError(error.message, 500));
   }
