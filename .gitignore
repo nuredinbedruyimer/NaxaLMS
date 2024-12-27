@@ -1,2 +1,4 @@
 server/node_modules
 server/.env
+// this line reminder to remove all env variable and other staff from the git 
+
